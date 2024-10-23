@@ -1,126 +1,73 @@
 // Copyright 2023 Nesterov Alexander
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <memory>
 #include <vector>
 
 #include "seq/gusev_n_trapezoidal_rule/include/ops_seq.hpp"
 
-TEST(Sequential, Test_Sum_10) {
-  const int count = 10;
+void runIntegrationTest(double a, double b, int n, double expected_result) {
+  std::vector<double> inputs = {a, b, static_cast<double>(n)};
+  std::vector<double> output(1, 0.0);
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
+  // Создаем TaskData
+  auto taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputs.data()));
+  taskDataSeq->inputs_count.emplace_back(3);  // 3 входных данных
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  taskDataSeq->outputs_count.emplace_back(1);  // 1 выходное значение
 
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
+  // Создаем задачу
+  auto testTaskSequential = std::make_shared<gusev_n_integrate_trapezoidal::TestTaskSequential>(taskDataSeq);
+  ASSERT_EQ(testTaskSequential->validation(), true);
+  testTaskSequential->pre_processing();
+  testTaskSequential->run();
+  testTaskSequential->post_processing();
 
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential testTaskSequential(taskDataSeq);
-  ASSERT_EQ(testTaskSequential.validation(), true);
-  testTaskSequential.pre_processing();
-  testTaskSequential.run();
-  testTaskSequential.post_processing();
-  ASSERT_EQ(count, out[0]);
+  ASSERT_NEAR(expected_result, output[0], 1e-5);  // Проверяем с точностью 1e-5
 }
 
-TEST(Sequential, Test_Sum_20) {
-  const int count = 20;
+TEST(gusev_n_trapezoidal_rule_seq, test_integration_0_to_1) {
+  double a = 0.0;  // Левая граница 
+  double b = 1.0;  // Правая граница
+  int n = 1000;    // Количество трапеций
+  double expected_result = (b * b * b - a * a * a) / 3;  // Интеграл от x^2 от 0 до 1
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
-
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential testTaskSequential(taskDataSeq);
-  ASSERT_EQ(testTaskSequential.validation(), true);
-  testTaskSequential.pre_processing();
-  testTaskSequential.run();
-  testTaskSequential.post_processing();
-  ASSERT_EQ(count, out[0]);
+  runIntegrationTest(a, b, n, expected_result);
 }
 
-TEST(Sequential, Test_Sum_50) {
-  const int count = 50;
+TEST(gusev_n_trapezoidal_rule_seq, test_integration_1_to_2) {
+  double a = 1.0;  // Левая граница 
+  double b = 2.0;  // Правая граница 
+  int n = 1000;    // Количество трапеций
+  double expected_result = (b * b * b - a * a * a) / 3;  // Интеграл от x^2 от 1 до 2
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
-
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential testTaskSequential(taskDataSeq);
-  ASSERT_EQ(testTaskSequential.validation(), true);
-  testTaskSequential.pre_processing();
-  testTaskSequential.run();
-  testTaskSequential.post_processing();
-  ASSERT_EQ(count, out[0]);
+  runIntegrationTest(a, b, n, expected_result);
 }
 
-TEST(Sequential, Test_Sum_70) {
-  const int count = 70;
+TEST(gusev_n_trapezoidal_rule_seq, test_integration_0_to_10) {
+  double a = 0.0;  // Левая граница 
+  double b = 10.0; // Правая граница
+  int n = 1000;    // Количество трапеций
+  double expected_result = (b * b * b - a * a * a) / 3;  // Интеграл от x^2 от 0 до 10
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
-
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential testTaskSequential(taskDataSeq);
-  ASSERT_EQ(testTaskSequential.validation(), true);
-  testTaskSequential.pre_processing();
-  testTaskSequential.run();
-  testTaskSequential.post_processing();
-  ASSERT_EQ(count, out[0]);
+  runIntegrationTest(a, b, n, expected_result);
 }
 
-TEST(Sequential, Test_Sum_100) {
-  const int count = 100;
+TEST(gusev_n_trapezoidal_rule_seq, test_integration_negative) {
+  double a = -1.0;  // Левая граница
+  double b = 0.0;   // Правая граница 
+  int n = 1000;    // Количество трапеций
+  double expected_result = (b * b * b - a * a * a) / 3;  // Интеграл от x^2 от -1 до 0
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
-
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential testTaskSequential(taskDataSeq);
-  ASSERT_EQ(testTaskSequential.validation(), true);
-  testTaskSequential.pre_processing();
-  testTaskSequential.run();
-  testTaskSequential.post_processing();
-  ASSERT_EQ(count, out[0]);
+  runIntegrationTest(a, b, n, expected_result);
 }
 
 int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  ::testing::InitGoogleTest(&argc, argv);
+  int result = RUN_ALL_TESTS();
+  std::cout << "Press Enter to continue...";
+  std::cin.get();  // Ожидание ввода от пользователя 
+  return result;
 }

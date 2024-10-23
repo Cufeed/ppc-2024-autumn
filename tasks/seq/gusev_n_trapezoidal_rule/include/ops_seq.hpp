@@ -1,12 +1,16 @@
 // Copyright 2023 Nesterov Alexander
 #pragma once
 
+#include <functional>
+#include <limits>
 #include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
-namespace nesterov_a_test_task_seq {
+namespace gusev_n_integrate_trapezoidal {
+
+double integrate_trapezoidal(double (*func)(double), double a, double b, int n);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
@@ -15,9 +19,15 @@ class TestTaskSequential : public ppc::core::Task {
   bool validation() override;
   bool run() override;
   bool post_processing() override;
+  double function(double x) {
+    return x * x;  // Интегрируем f(x) = x^2
+  }
 
  private:
-  int input_{}, res{};
+  double a_{};
+  double b_{};
+  int n_{};
+  double res_{};
 };
 
-}  // namespace nesterov_a_test_task_seq
+}  // namespace gusev_n_integrate_trapezoidal
